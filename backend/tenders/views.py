@@ -5,8 +5,11 @@ from rest_framework import status
 
 from .models import Tender
 from .serializers import TenderSerializer
+from .serializers import TenderQuestionSerializer
 
 from documents.processor import process_tender_document
+from rag_service import answer_question
+
 
 
 class TenderListCreateView(APIView):
@@ -76,4 +79,35 @@ class TenderDetailView(APIView):
         return Response(
             {"message": "Tender deleted successfully."},
             status=status.HTTP_204_NO_CONTENT
+        )
+
+class TenderQuestionView(APIView):
+
+    def post(self, request, tender_id):
+
+        serializer = TenderQuestionSerializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        question = serializer.validated_data["question"]
+
+        try:
+            tender = Tender.objects.get(
+                id=tender_id,
+                user=request.user
+            )
+        except Tender.DoesNotExist:
+            return Response(
+                {"detail": "Tender not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        result = answer_question(
+            question=question,
+            tender_id=tender.id
+        )
+
+        return Response(
+            result,
+            status=status.HTTP_200_OK
         )

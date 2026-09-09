@@ -10,3 +10,9 @@ class TenderSerializer(serializers.ModelSerializer):
             "document",
             "created_at",
         ]
+
+class TenderQuestionSerializer(serializers.Serializer):
+    question=serializers.CharField(
+        required=True,
+        allow_blank=False
+    )
