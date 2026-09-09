@@ -6,6 +6,9 @@ from rest_framework import status
 from .models import Tender
 from .serializers import TenderSerializer
 
+from documents.processor import process_tender_document
+
+
 class TenderListCreateView(APIView):
     permission_classes=[IsAuthenticated]
 
@@ -14,6 +17,9 @@ class TenderListCreateView(APIView):
 
         if serializer.is_valid():
             tender=serializer.save(user=request.user)
+
+            if tender.document:
+                process_tender_document(tender)
 
             return Response(
                 TenderSerializer(tender).data,

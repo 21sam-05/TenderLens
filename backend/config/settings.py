@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'accounts',
     'companies',
     'tenders',
+    'documents',
     'rest_framework',
     'rest_framework_simplejwt',           
 ]
