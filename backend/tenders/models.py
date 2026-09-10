@@ -18,4 +18,31 @@ class Tender(models.Model):
     )
     created_at=models.DateTimeField(auto_now_add=True)
 
-# Create your models here.
+class TenderIntelligence(models.Model):
+    tender=models.OneToOneField(
+        Tender,
+        on_delete=models.CASCADE,
+        related_name="Intelligence"
+    )
+
+    eligibility_requirements = models.JSONField(default=list)
+
+    financial_requirements = models.JSONField(default=dict)
+
+    technical_requirements = models.JSONField(default=list)
+
+    experience_requirements = models.JSONField(default=list)
+
+    required_documents = models.JSONField(default=list)
+
+    deadlines = models.JSONField(default=list)
+
+    penalties = models.JSONField(default=list)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    project_duration=models.JSONField(default=list)
+    
+

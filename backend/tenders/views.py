@@ -3,14 +3,35 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Tender
+from .models import Tender,TenderIntelligence
 from .serializers import TenderSerializer
-from .serializers import TenderQuestionSerializer
+from .serializers import TenderQuestionSerializer,TenderIntelligenceSerializer
+from django.shortcuts import get_object_or_404
+
 
 from documents.processor import process_tender_document
 from rag_service import answer_question
 
+class TenderIntelligenceView(APIView):
 
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tender_id):
+
+        tender = get_object_or_404(
+            Tender,
+            id=tender_id,
+            user=request.user
+        )
+
+        intelligence = get_object_or_404(
+            TenderIntelligence,
+            tender=tender
+        )
+
+        serializer = TenderIntelligenceSerializer(intelligence)
+
+        return Response(serializer.data)
 
 class TenderListCreateView(APIView):
     permission_classes=[IsAuthenticated]
@@ -111,3 +132,4 @@ class TenderQuestionView(APIView):
             result,
             status=status.HTTP_200_OK
         )
+
