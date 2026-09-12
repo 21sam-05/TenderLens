@@ -32,6 +32,39 @@ class CompanyProfileView(APIView):
             )
 
         return Response(CompanyProfileSerializer(company).data)
+
+
+    def patch(self,request):
+        try:
+            company=CompanyProfile.objects.get(
+                user=request.user
+            )
+        except CompanyProfile.DoesNotExist:
+            return Response(
+                {"detail":"Company profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer=CompanyProfileSerializer(
+            company,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+
     
 
-# Create your views here.
+

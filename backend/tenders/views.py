@@ -3,9 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Tender,TenderIntelligence
+from .models import Tender,TenderIntelligence,BidReadinessAnalysis
 from .serializers import TenderSerializer
-from .serializers import TenderQuestionSerializer,TenderIntelligenceSerializer
+from .serializers import TenderQuestionSerializer,TenderIntelligenceSerializer,BidReadinessAnalysisSerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -133,3 +133,25 @@ class TenderQuestionView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+class BidReadinessView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tender_id):
+
+        tender = get_object_or_404(
+            Tender,
+            id=tender_id,
+            user=request.user
+        )
+
+        analysis = get_object_or_404(
+            BidReadinessAnalysis,
+            tender=tender,
+            company__user=request.user
+        )
+
+        serializer = BidReadinessAnalysisSerializer(analysis)
+
+        return Response(serializer.data)

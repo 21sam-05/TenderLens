@@ -43,6 +43,46 @@ class TenderIntelligence(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
 
-    project_duration=models.JSONField(default=list)
-    
+    project_duration = models.JSONField(
+    default=list,
+    null=True,
+    blank=True
+)
+
+
+class BidReadinessAnalysis(models.Model):
+    tender=models.ForeignKey(
+        Tender,
+        on_delete=models.CASCADE,
+        related_name="bid_Readiness_analyses"
+    )
+
+    matched_requirements=models.JSONField(default=list)
+
+    missing_requirements=models.JSONField(default=list)
+
+    critical_missing_requirements = models.JSONField(default=list)
+
+    score = models.PositiveIntegerField()
+
+    readiness = models.CharField(
+        max_length=20
+    )
+
+    bid_ready = models.BooleanField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    company = models.ForeignKey(
+    "companies.CompanyProfile",
+        on_delete=models.CASCADE,
+        related_name="bid_readiness_analyses",
+        
+)
 
