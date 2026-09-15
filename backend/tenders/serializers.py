@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tender,TenderIntelligence,BidReadinessAnalysis
+from .models import Tender,TenderIntelligence,BidReadinessAnalysis,BidAnalysis
 
 class TenderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,3 +50,19 @@ class BidReadinessAnalysisSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]   
+
+class BidAnalysisSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BidAnalysis
+        fields = [
+            "tender",
+            "company",
+            "recommendation",
+            "summary",
+            "critical_blockers",
+            "priority_actions",
+            "strengths",
+            "created_at",
+            "updated_at",
+        ]

@@ -1,6 +1,13 @@
 from django.urls import path
-from .views import TenderListCreateView,TenderDetailView,TenderQuestionView
-from .views import TenderIntelligenceView,BidReadinessView
+from .views import (
+    TenderListCreateView,
+    TenderDetailView,
+    TenderQuestionView,
+    TenderIntelligenceView,
+    BidReadinessView,
+    BidAnalysisView,
+    TenderOverView
+)
 urlpatterns = [
     path("", TenderListCreateView.as_view(), name="tender-list-create"),
     path("<int:pk>/",TenderDetailView.as_view(),name="tender-detail"),
@@ -17,6 +24,14 @@ urlpatterns = [
     "<int:tender_id>/readiness/",
     BidReadinessView.as_view(),
     name="bid-readiness"
-),
+    ),
+    path(
+        "<int:tender_id>/bid-analysis/",
+        BidAnalysisView.as_view(),
+        name="bid-analysis"
+    ),
+    path("<int:tender_id>/overview/",
+         TenderOverView.as_view(),
+         name="tender-overview"),
 
 ]

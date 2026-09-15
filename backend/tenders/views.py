@@ -3,9 +3,20 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Tender,TenderIntelligence,BidReadinessAnalysis
-from .serializers import TenderSerializer
-from .serializers import TenderQuestionSerializer,TenderIntelligenceSerializer,BidReadinessAnalysisSerializer
+from .models import (
+    Tender,
+    TenderIntelligence,
+    BidReadinessAnalysis,
+    BidAnalysis
+)
+from .serializers import (
+    TenderSerializer,
+    TenderQuestionSerializer,
+    TenderIntelligenceSerializer,
+    BidReadinessAnalysisSerializer,
+    BidAnalysisSerializer
+)
+
 from django.shortcuts import get_object_or_404
 
 
@@ -155,3 +166,83 @@ class BidReadinessView(APIView):
         serializer = BidReadinessAnalysisSerializer(analysis)
 
         return Response(serializer.data)
+
+
+class BidAnalysisView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tender_id):
+
+        tender = get_object_or_404(
+            Tender,
+            id=tender_id,
+            user=request.user
+        )
+
+        analysis = get_object_or_404(
+            BidAnalysis,
+            tender=tender,
+            company__user=request.user
+        )
+
+        serializer = BidAnalysisSerializer(analysis)
+
+        return Response(serializer.data)
+
+class TenderOverView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request,tender_id):
+        tender = get_object_or_404(
+        Tender.objects.select_related("Intelligence"),
+        id=tender_id,
+        user=request.user
+        )
+
+        intelligence=TenderIntelligence.objects.filter(
+            tender=tender
+        ).first()
+
+        readiness=BidReadinessAnalysis.objects.filter(
+            tender=tender,
+            company__user=request.user
+        ).order_by("-updated_at").first()
+
+        bid_analysis=BidAnalysis.objects.filter(
+            tender=tender,
+            company__user=request.user
+        ).order_by("-updated_at").first()
+
+
+        summary = {
+        "score": readiness.score if readiness else None,
+        "readiness": readiness.readiness if readiness else None,
+        "bid_ready": readiness.bid_ready if readiness else None,
+        "critical_missing_requirements": (
+        readiness.critical_missing_requirements
+        if readiness else []
+        ),
+        "recommendation": (
+        bid_analysis.recommendation
+        if bid_analysis else None
+            )
+        }
+
+        return Response({
+            "summary":summary,
+            "tender":TenderSerializer(tender).data,
+            "intelligence":(
+                TenderIntelligenceSerializer(intelligence).data
+                if intelligence else None
+            ),
+            "readiness": (
+                BidReadinessAnalysisSerializer(readiness).data
+                if readiness else None
+            ),
+            "bid_analysis": (
+                BidAnalysisSerializer(bid_analysis).data
+                if bid_analysis else None
+            ),
+
+        })

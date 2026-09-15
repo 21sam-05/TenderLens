@@ -86,3 +86,41 @@ class BidReadinessAnalysis(models.Model):
         
 )
 
+class BidAnalysis(models.Model):
+    tender = models.ForeignKey(
+        Tender,
+        on_delete=models.CASCADE,
+        related_name="bid_analyses"
+    )
+
+    company = models.ForeignKey(
+        "companies.CompanyProfile",
+        on_delete=models.CASCADE,
+        related_name="bid_analyses"
+    )
+
+    recommendation = models.CharField(
+        max_length=30
+    )
+
+    summary = models.TextField()
+
+    critical_blockers = models.JSONField(
+        default=list
+    )
+
+    priority_actions = models.JSONField(
+        default=list
+    )
+
+    strengths = models.JSONField(
+        default=list
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
