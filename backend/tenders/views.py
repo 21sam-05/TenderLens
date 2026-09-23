@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from risk_service import calculate_risk
 from .models import (
     Tender,
     TenderIntelligence,
@@ -18,7 +18,7 @@ from .serializers import (
 )
 
 from django.shortcuts import get_object_or_404
-
+from django.db import transaction
 
 from documents.processor import process_tender_document
 from rag_service import answer_question
@@ -51,16 +51,17 @@ class TenderListCreateView(APIView):
         serializer=TenderSerializer(data=request.data)
 
         if serializer.is_valid():
-            tender=serializer.save(user=request.user)
+            with transaction.atomic():
+                tender=serializer.save(
+                    user=request.user
+                )
 
-            if tender.document:
-                process_tender_document(tender)
-
+                if tender.document:
+                    process_tender_document(tender)
             return Response(
                 TenderSerializer(tender).data,
                 status=status.HTTP_201_CREATED
             )
-
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
@@ -122,7 +123,7 @@ class TenderQuestionView(APIView):
         serializer.is_valid(raise_exception=True)
 
         question = serializer.validated_data["question"]
-
+        history = serializer.validated_data.get("history", [])
         try:
             tender = Tender.objects.get(
                 id=tender_id,
@@ -135,9 +136,10 @@ class TenderQuestionView(APIView):
             )
 
         result = answer_question(
-            question=question,
-            tender_id=tender.id
-        )
+    question=question,
+    tender_id=tender.id,
+    history=history
+)
 
         return Response(
             result,
@@ -246,3 +248,70 @@ class TenderOverView(APIView):
             ),
 
         })
+
+
+class TenderDashboardStatsView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        total_tenders=Tender.objects.filter(user=request.user).count()
+
+        bid_ready=BidReadinessAnalysis.objects.filter(
+            company__user=request.user,
+            bid_ready=True
+        ).values("tender").distinct().count()
+
+        needs_attention=BidReadinessAnalysis.objects.filter(
+            company__user=request.user,
+            bid_ready=False
+        ).values("tender").distinct().count()
+
+        return Response({
+            "total_tenders":total_tenders,
+            "bid_ready":bid_ready,
+            "needs_attention":needs_attention
+        })
+class TenderRiskView(APIView):
+
+    def get(self, request, tender_id):
+
+        try:
+            tender = Tender.objects.get(
+                id=tender_id,
+                user=request.user
+            )
+        except Tender.DoesNotExist:
+            return Response(
+                {"detail": "Tender not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            intelligence = TenderIntelligence.objects.get(
+                tender=tender
+            )
+        except TenderIntelligence.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Tender intelligence is not available."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        intelligence_data = {
+            "eligibility_requirements": intelligence.eligibility_requirements,
+            "financial_requirements": intelligence.financial_requirements,
+            "technical_requirements": intelligence.technical_requirements,
+            "experience_requirements": intelligence.experience_requirements,
+            "required_documents": intelligence.required_documents,
+            "deadlines": intelligence.deadlines,
+            "project_duration": intelligence.project_duration,
+            "penalties": intelligence.penalties,
+        }
+
+        risk = calculate_risk(intelligence_data)
+
+        return Response(
+            risk,
+            status=status.HTTP_200_OK
+        )

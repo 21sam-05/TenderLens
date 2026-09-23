@@ -17,6 +17,11 @@ class TenderQuestionSerializer(serializers.Serializer):
         required=True,
         allow_blank=False
     )
+    history=serializers.ListField(
+        child=serializers.DictField(),
+        required=False,
+        default=list
+    )
 
 class TenderIntelligenceSerializer(serializers.ModelSerializer):
     class Meta:

@@ -6,10 +6,17 @@ from .views import (
     TenderIntelligenceView,
     BidReadinessView,
     BidAnalysisView,
-    TenderOverView
+    TenderOverView,TenderDashboardStatsView,
+    TenderRiskView 
 )
 urlpatterns = [
     path("", TenderListCreateView.as_view(), name="tender-list-create"),
+
+    path(
+        "dashboard-stats/",
+        TenderDashboardStatsView.as_view(),
+        name="tender-dashboard-stats",
+    ),
     path("<int:pk>/",TenderDetailView.as_view(),name="tender-detail"),
     path(
     "<int:tender_id>/ask/",
@@ -33,5 +40,13 @@ urlpatterns = [
     path("<int:tender_id>/overview/",
          TenderOverView.as_view(),
          name="tender-overview"),
+
+    path(
+    "<int:tender_id>/risk/",
+    TenderRiskView.as_view(),
+    name="tender-risk"
+),
+
+    
 
 ]

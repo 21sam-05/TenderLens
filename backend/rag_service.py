@@ -1,6 +1,6 @@
 from embedding_service import generate_embedding
 from retriever import retrieve_chunks
-from generation_service import generate_answer
+from generation_service import generate_answer,rewrite_question
 
 
 def build_context(chunks):
@@ -18,14 +18,23 @@ Section:{chunk.section}
 
     return "\n---\n".join(context_parts)
 
-def answer_question(question, tender_id, top_k=5):
+def answer_question(question, tender_id, history=None, top_k=5):
+
+    if history is None:
+        history = []
 
     if not question or not question.strip():
-        return{
-            "answer":"please provide a question",
-            "sources":[]
+        return {
+            "answer": "please provide a question",
+            "sources": []
         }
-    query_embedding = generate_embedding(question)
+
+    standalone_question = rewrite_question(
+    question=question,
+    history=history
+)
+
+    query_embedding = generate_embedding(standalone_question)
 
     chunks = retrieve_chunks(
         query_embedding=query_embedding,
@@ -34,29 +43,29 @@ def answer_question(question, tender_id, top_k=5):
     )
 
     if not chunks:
-        return{
-            "answer":"I could not find relevant information in the provided tender",
-            "sources":[]
+        return {
+            "answer": "I could not find relevant information in the provided tender",
+            "sources": []
         }
 
     context = build_context(chunks)
 
     answer = generate_answer(
         question=question,
-        context=context
+        context=context,
+        history=history
     )
 
-    sources=[]
+    sources = []
 
     for chunk in chunks:
         sources.append({
-            "page":chunk.page,
-            "section":chunk.section,
-            "chunk_id":chunk.chunk_id
+            "page": chunk.page,
+            "section": chunk.section,
+            "chunk_id": chunk.chunk_id
         })
 
     return {
-        "answer":answer,
-        "sources":sources
+        "answer": answer,
+        "sources": sources
     }
-

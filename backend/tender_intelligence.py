@@ -31,7 +31,7 @@ Return the result as valid JSON with exactly these fields:
     "experience_requirements": [],
     "required_documents": [],
     "deadlines": [],
-    "penalties": []
+    "penalties": [],
     "project_duration":null,
 }}
 

@@ -11,6 +11,7 @@ class DocumentChunk(models.Model):
         null=True,
         blank=True
     )
+    
 
     text=models.TextField()
 
