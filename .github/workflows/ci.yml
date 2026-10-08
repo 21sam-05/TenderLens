@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DJANGO_SECRET_KEY: "ci-only-secret-key"
+      GEMINI_API_KEY: "ci-only-gemini-key"
 
     steps:
       - name: Checkout Repository
