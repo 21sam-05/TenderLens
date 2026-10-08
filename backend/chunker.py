@@ -193,36 +193,3 @@ def chunk_document(
 
     return final_chunks
 
-pdf_path = "tender.pdf"
-
-pages = extract_and_clean_pdf(pdf_path)
-
-all_chunks = []
-
-for page in pages:
-
-    chunks = chunk_document(
-        document_id=page["document_id"],
-        page=page["page"],
-        text=page["text"],
-        chunk_size=500,
-        overlap=100
-    )
-
-    all_chunks.extend(chunks)
-
-
-print("Total chunks:", len(all_chunks))
-
-for chunk in all_chunks:
-
-    print("\n" + "=" * 70)
-
-    print("Document ID:", chunk["document_id"])
-    print("Page:", chunk["page"])
-    print("Chunk ID:", chunk["chunk_id"])
-    print("Section:", chunk["section"])
-
-    print("-" * 70)
-
-    print(chunk["text"])
