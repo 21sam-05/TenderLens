@@ -7,6 +7,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      
     volumes:
       - tenderlens_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,6 +22,12 @@ services:
       dockerfile: Dockerfile
     container_name: tenderlens-backend
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     environment:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
@@ -28,6 +35,11 @@ services:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DEBUG: ${DEBUG}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+
     ports:
       - "8000:8000"
     depends_on:
@@ -40,10 +52,17 @@ services:
       dockerfile: Dockerfile
     container_name: tenderlens-frontend
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     ports:
       - "5173:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   tenderlens_postgres_data:
