@@ -330,7 +330,12 @@ The published images are ready to be used in a future Kubernetes deployment.
 ## 📁 Project Structure
 
 ```text
+
 TenderLens/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # GitHub Actions CI + GHCR publishing
 │
 ├── backend/
 │   │
@@ -357,11 +362,19 @@ TenderLens/
 │   │   ├── App.jsx
 │   │   └── App.css
 │   │
+│   ├── Dockerfile
+│   ├── .dockerignore
 │   ├── package.json
 │   └── vite.config.js
 │
+├── .dockerignore
 ├── .gitignore
+├── Dockerfile
+├── docker-compose.yaml
 └── README.md
+
+
+
 ```
 
 ---
