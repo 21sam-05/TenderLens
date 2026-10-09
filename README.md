@@ -511,6 +511,11 @@ DATABASE_USER=your_database_user
 DATABASE_PASSWORD=your_database_password
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
+DJANGO_SECRET_KEY=YOUR_SECRET_KEY
+DEBUG=false
+
+CORS_ALLOWED_ORIGINS=ALLOWED ORIGIN
+ALLOWED_HOSTS=GIVE LOCALHOST ORIGIN
 ```
 
 **Never commit your `.env` file or API keys to GitHub.**
@@ -558,6 +563,7 @@ TenderLens combines several real-world engineering concepts into a single applic
 * OCR
 * AI-assisted risk analysis
 * Frontend application development
+* CI/CD Pipeline Integration
 
 The project is designed around a realistic business workflow rather than a standalone AI demo.
 
