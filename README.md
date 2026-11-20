@@ -294,12 +294,48 @@ The model generates an answer grounded in the retrieved tender content.
 * REST APIs
 * Postman
 
+## ⚙️ CI/CD Pipeline
+
+TenderLens uses **GitHub Actions** to automate continuous integration and Docker image publishing.
+
+### Pipeline Workflow
+
+* **Trigger:** Runs on pushes and pull requests targeting the `main` branch.
+* **Backend CI:** Installs Python dependencies and runs Django system checks.
+* **Frontend CI:** Installs Node.js dependencies and builds the React application using Vite.
+* **Docker Build:** Builds container images for the Django backend and React frontend.
+* **Container Registry:** Publishes both Docker images to GitHub Container Registry (GHCR) on pushes to `main`.
+
+### Docker Images
+
+* **Backend:** `ghcr.io/21sam-05/tenderlens-backend:latest`
+* **Frontend:** `ghcr.io/21sam-05/tenderlens-frontend:latest`
+
+### Security and Automation
+
+* Uses GitHub Actions' built-in `GITHUB_TOKEN` to authenticate with GHCR.
+* Configures workflow permissions for repository checkout and package publishing.
+* Uses CI-only placeholder values rather than production API keys or secrets.
+* Keeps application configuration and sensitive credentials outside the committed workflow.
+
+### Pipeline Architecture
+
+`Git Push / Pull Request → GitHub Actions → Backend & Frontend Checks → Docker Image Builds → GHCR Publishing (main branch only)`
+
+The published images are ready to be used in a future Kubernetes deployment.
+
+
 ---
 
 ## 📁 Project Structure
 
 ```text
+
 TenderLens/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # GitHub Actions CI + GHCR publishing
 │
 ├── backend/
 │   │
@@ -326,11 +362,19 @@ TenderLens/
 │   │   ├── App.jsx
 │   │   └── App.css
 │   │
+│   ├── Dockerfile
+│   ├── .dockerignore
 │   ├── package.json
 │   └── vite.config.js
 │
+├── .dockerignore
 ├── .gitignore
+├── Dockerfile
+├── docker-compose.yaml
 └── README.md
+
+
+
 ```
 
 ---
@@ -467,6 +511,11 @@ DATABASE_USER=your_database_user
 DATABASE_PASSWORD=your_database_password
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
+DJANGO_SECRET_KEY=YOUR_SECRET_KEY
+DEBUG=false
+
+CORS_ALLOWED_ORIGINS=ALLOWED ORIGIN
+ALLOWED_HOSTS=GIVE LOCALHOST ORIGIN
 ```
 
 **Never commit your `.env` file or API keys to GitHub.**
@@ -514,6 +563,7 @@ TenderLens combines several real-world engineering concepts into a single applic
 * OCR
 * AI-assisted risk analysis
 * Frontend application development
+* CI/CD Pipeline Integration
 
 The project is designed around a realistic business workflow rather than a standalone AI demo.
 
