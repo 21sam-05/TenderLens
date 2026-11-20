@@ -460,9 +460,13 @@ B.Tech Computer Science & Engineering (AI & ML)
 VIT Bhopal University
 
 GitHub: [21sam-05](https://github.com/21sam-05)
+
 LinkedIn: (https://www.linkedin.com/in/samridhi-saxena-07231a28a/)
+
 E-mail: saxenasamridhi1921@gmail.com
+
 Phone: 📞-+91 9540934924
+
 ---
 
 **TenderLens — Turning complex tenders into actionable bidding intelligence.**
