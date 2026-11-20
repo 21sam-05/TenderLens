@@ -1,0 +1,8 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenderlens
+  labels:
+    app.kubernetes.io/name: tenderlens
+    app.kubernetes.io/managed-by: kubectl
